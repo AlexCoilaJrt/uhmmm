@@ -3,6 +3,8 @@ package org.example.msauthservice.controller;
 import org.example.msauthservice.model.dto.LoginRequest;
 import org.example.msauthservice.model.dto.JwtResponse;
 import org.example.msauthservice.model.dto.RegisterRequest;
+import org.example.msauthservice.model.dto.RoleAssignmentRequest;
+import org.example.msauthservice.repository.UserRepository;
 import org.example.msauthservice.secutiry.JwtUtils;
 import org.example.msauthservice.service.AuthService;
 import org.example.msauthservice.model.entity.User;
@@ -15,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,8 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/login")
     public JwtResponse login(@RequestBody LoginRequest loginRequest) {
@@ -68,4 +73,25 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
     }
+    @GetMapping("/users")
+    public List<User> listUsers() {
+        return userRepository.findAll(); // Devuelve la lista de usuarios
+    }
+    @PostMapping("/assign-role")
+    public ResponseEntity<User> assignRole(@RequestBody RoleAssignmentRequest request) {
+        // Asignar el rol al usuario
+        authService.assignRoleToUser(request.getUserId(), request.getRoleId());
+
+        // Obtener el usuario actualizado
+        Optional<User> updatedUser = userRepository.findById(request.getUserId());
+
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.ok(updatedUser.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+
+
 }
