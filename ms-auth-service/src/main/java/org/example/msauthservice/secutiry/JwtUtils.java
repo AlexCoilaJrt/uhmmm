@@ -1,6 +1,6 @@
 package org.example.msauthservice.secutiry;
+
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.example.msauthservice.service.UserDetailsImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -10,35 +10,31 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    private String jwtSecret = "tuJwtSecret";  // Tu clave secreta para firmar el JWT
-    private int jwtExpirationMs = 86400000;    // Tiempo de expiración del token
+    private int jwtExpirationMs = 86400000; // 24 horas
 
-    // Método para generar el token JWT
+    // Generar un JWT sin firma
     public String generateJwtToken(Authentication authentication) {
         UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))   // Agrega el nombre del usuario al token
-                .setIssuedAt(new Date())                     // Fecha de emisión
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))  // Fecha de expiración
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)  // Firmamos el token con HS512 y la clave secreta
-                .compact();
+                .setSubject(userPrincipal.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .compact(); // Genera el JWT sin firmarlo
     }
 
-    // Validar el token
+    // Validar el token JWT (sin firma)
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            Jwts.parser().parseClaimsJws(authToken);  // Omitimos la validación de la firma
             return true;
         } catch (Exception e) {
-            System.out.println("JWT inválido: " + e.getMessage());
+            return false;
         }
-
-        return false;
     }
 
-    // Obtener el nombre del usuario del token
+    // Obtener el nombre de usuario del token
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().parseClaimsJws(token).getBody().getSubject();
     }
 }
