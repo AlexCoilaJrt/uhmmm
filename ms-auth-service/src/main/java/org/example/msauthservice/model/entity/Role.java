@@ -1,6 +1,7 @@
 package org.example.msauthservice.model.entity;
 
-import jakarta.persistence.*;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
