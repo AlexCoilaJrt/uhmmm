@@ -25,7 +25,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;  // Asegúrate de que JwtUtils esté anotado con @Component en el paquete de security
 
     @Autowired
     private AuthService authService;
@@ -44,23 +44,21 @@ public class AuthController {
         }
     }
 
-    // Endpoint para registrar usuarios
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest registerRequest) {
-        // Recibe el Optional<User> desde el servicio
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         Optional<User> registeredUser = authService.registerUser(
                 registerRequest.getUsername(),
                 registerRequest.getPassword(),
                 registerRequest.getEmail()
         );
 
-        // Verifica si el usuario fue registrado
         if (registeredUser.isPresent()) {
-            return "User registered successfully";
+            return ResponseEntity.ok("User registered successfully");
         } else {
-            return "User registration failed: Username already exists";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User registration failed: Username already exists");
         }
     }
+
     @PostMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestParam String token) {
         boolean isValid = jwtUtils.validateJwtToken(token);
@@ -70,5 +68,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token inválido");
         }
     }
-
 }
