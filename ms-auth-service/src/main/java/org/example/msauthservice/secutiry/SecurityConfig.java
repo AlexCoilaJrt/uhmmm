@@ -27,13 +27,18 @@ public class SecurityConfig {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers("/api/admin/**").hasAuthority("ADMIN")  // Un ejemplo de autorización basada en roles
+                //.authorities(this.)
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling().accessDeniedPage("/403");  // Para gestionar los errores de acceso
 
         // Añade el filtro de autenticación JWT
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
