@@ -7,6 +7,9 @@ import org.example.msauthservice.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 public class RoleService {
 
@@ -16,13 +19,10 @@ public class RoleService {
     @Autowired
     private PermissionRepository permissionRepository;
 
-    public void assignPermissionToRole(Long roleId, Long permissionId) {
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role no encontrado"));
-        Permission permission = permissionRepository.findById(permissionId)
-                .orElseThrow(() -> new RuntimeException("Permiso no encontrado"));
-
-        role.getPermissions().add(permission);
-        roleRepository.save(role);  // Guarda los cambios en la base de datos
+    public Role assignPermissionsToRole(Long roleId, Set<Long> permissionIds) {
+        Role role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+        Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(permissionIds));
+        role.setPermissions(permissions);
+        return roleRepository.save(role);
     }
 }

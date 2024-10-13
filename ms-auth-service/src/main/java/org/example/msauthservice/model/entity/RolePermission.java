@@ -3,7 +3,7 @@ package org.example.msauthservice.model.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "role_permissions") // Asegúrate de que el nombre de la tabla sea correcto
+@Table(name = "role_permissions")
 public class RolePermission {
 
     @Id
@@ -11,12 +11,14 @@ public class RolePermission {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
     @ManyToOne
-    @JoinColumn(name = "permission_id")
+    @JoinColumn(name = "permission_id", nullable = false)
     private Permission permission;
+
+    // Getters and Setters
 
     public Long getId() {
         return id;
